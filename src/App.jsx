@@ -1,122 +1,206 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 
+import Products from "./pages/Products";
+import AddProduct from "./pages/AddProduct";
+import EditProduct from "./pages/EditProduct";
+
+import Sales from "./pages/Sales";
+import AddSale from "./pages/AddSale";
+import EditSale from "./pages/EditSale";
+
+import Invoices from "./pages/Invoices";
+import AddInvoice from "./pages/AddInvoice";
+import InvoiceDetails from "./pages/InvoiceDetails";
+
+import DashboardLayout from "./layouts/DashboardLayout";
+
+import SalesHistory from "./pages/SalesHistory";
+
+import Users from "./pages/Users";
+import AddUser from "./pages/AddUser";
+import EditUser from "./pages/EditUser";
+
+function PlaceholderPage({ title, subtitle }) {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <div className="page-placeholder">
+      <h1>{title}</h1>
+      <p>{subtitle}</p>
+    </div>
+  );
 }
 
-export default App
+function App() {
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem("kamana_user");
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      localStorage.removeItem("kamana_user");
+      return null;
+    }
+  });
+
+  const handleLogin = (connectedUser) => {
+    localStorage.setItem("kamana_user", JSON.stringify(connectedUser));
+    setUser(connectedUser);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("kamana_user");
+    setUser(null);
+  };
+
+  function ProtectedRoute({ children }) {
+    if (!user) {
+      return <Navigate to="/login" replace />;
+    }
+
+    return children;
+  }
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          user ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
+        }
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/products"
+        element={
+          <ProtectedRoute>
+            <Products user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/products/add"
+        element={
+          <ProtectedRoute>
+            <AddProduct user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/products/edit/:id"
+        element={
+          <ProtectedRoute>
+            <EditProduct user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/sales"
+        element={
+          <ProtectedRoute>
+            <Sales user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/sales/add"
+        element={
+          <ProtectedRoute>
+            <AddSale user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/sales/edit/:id"
+        element={
+          <ProtectedRoute>
+            <EditSale user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/invoices"
+        element={
+          <ProtectedRoute>
+            <Invoices user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/invoices/add"
+        element={
+          <ProtectedRoute>
+            <AddInvoice user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/invoices/:id"
+        element={
+          <ProtectedRoute>
+            <InvoiceDetails user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/history"
+        element={
+          <ProtectedRoute>
+            <SalesHistory user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+
+<Route
+  path="/users"
+  element={
+    <ProtectedRoute>
+      <Users user={user} onLogout={handleLogout} />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/users/add"
+  element={
+    <ProtectedRoute>
+      <AddUser user={user} onLogout={handleLogout} />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/users/edit/:id"
+  element={
+    <ProtectedRoute>
+      <EditUser user={user} onLogout={handleLogout} />
+    </ProtectedRoute>
+  }
+/>
+
+      <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+      <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+    </Routes>
+  );
+}
+
+export default App;
