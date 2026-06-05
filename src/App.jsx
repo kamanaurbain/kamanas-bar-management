@@ -16,22 +16,11 @@ import Invoices from "./pages/Invoices";
 import AddInvoice from "./pages/AddInvoice";
 import InvoiceDetails from "./pages/InvoiceDetails";
 
-import DashboardLayout from "./layouts/DashboardLayout";
-
 import SalesHistory from "./pages/SalesHistory";
 
 import Users from "./pages/Users";
 import AddUser from "./pages/AddUser";
 import EditUser from "./pages/EditUser";
-
-function PlaceholderPage({ title, subtitle }) {
-  return (
-    <div className="page-placeholder">
-      <h1>{title}</h1>
-      <p>{subtitle}</p>
-    </div>
-  );
-}
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -64,10 +53,17 @@ function App() {
 
   return (
     <Routes>
+      {/* LANDING PAGE = LOGIN */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+
       <Route
         path="/login"
         element={
-          user ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
+          user ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <Login onLogin={handleLogin} />
+          )
         }
       />
 
@@ -170,35 +166,37 @@ function App() {
         }
       />
 
-<Route
-  path="/users"
-  element={
-    <ProtectedRoute>
-      <Users user={user} onLogout={handleLogout} />
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute>
+            <Users user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
 
-<Route
-  path="/users/add"
-  element={
-    <ProtectedRoute>
-      <AddUser user={user} onLogout={handleLogout} />
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/users/add"
+        element={
+          <ProtectedRoute>
+            <AddUser user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
 
-<Route
-  path="/users/edit/:id"
-  element={
-    <ProtectedRoute>
-      <EditUser user={user} onLogout={handleLogout} />
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/users/edit/:id"
+        element={
+          <ProtectedRoute>
+            <EditUser user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
-      <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+      <Route
+        path="*"
+        element={<Navigate to={user ? "/dashboard" : "/login"} replace />}
+      />
     </Routes>
   );
 }
